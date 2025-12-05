@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Project 001</title>
+    <title>Flappy Bird</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,6 +14,11 @@
         <div class="game-screen">
             <canvas id="game" width="300" height="500"></canvas>
             <p id="description" class="game-description">Press 'spacebar' or 'click' to begin</p>
+        </div>
+        <div id="difficulty-select">
+            <button data-level="easy" onclick="setDifficulty('easy')">Easy</button>
+            <button data-level="medium" onclick="setDifficulty('medium')">Medium</button>
+            <button data-level="hard" onclick="setDifficulty('hard')">Hard</button>
         </div>
     </div>
     <script src="main.js"></script>

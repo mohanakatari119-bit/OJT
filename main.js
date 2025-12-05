@@ -1,3 +1,34 @@
+const medalSprites = {
+    platinum: { x: 209, y: 115, w: 44, h: 44 },
+    silver:   { x: 254, y: 115, w: 44, h: 44 },
+    gold:     { x: 299, y: 115, w: 44, h: 44 },
+    bronze:   { x: 344, y: 115, w: 44, h: 44 }
+};
+// =======================
+// DIFFICULTY SETTINGS
+// =======================
+const difficulty = {
+    easy:   { gap: 140, speed: 1.5, gravity: 0.25 },
+    medium: { gap: 100, speed: 2,   gravity: 0.30 },
+    hard:   { gap: 75,  speed: 3,   gravity: 0.35 }
+};
+
+let currentDifficulty = "easy";
+
+function setDifficulty(level) {
+    currentDifficulty = level;
+    pipes.gap = difficulty[level].gap;
+    pipes.dx = difficulty[level].speed;
+    bird.gravity = difficulty[level].gravity;
+    // Update UI active state
+    const buttons = document.querySelectorAll("#difficulty-select button");
+    buttons.forEach(btn => {
+        btn.classList.remove("active");
+        if (btn.dataset.level === level) {
+            btn.classList.add("active");
+        }
+    });
+}
 /************************
 ***** DECLARATIONS: *****
 ************************/
@@ -104,8 +135,8 @@ pipes = {
     //pipes' values for drawing on canvas
     w: 55,
     h: 300,
-    gap: 85,
-    dx: 2,
+    gap: difficulty[currentDifficulty].gap,
+    dx: difficulty[currentDifficulty].speed,
     //acceptable y values must be -260 <= y <= -40
     minY: -260,
     maxY: -40,
@@ -300,7 +331,7 @@ map = [
 //current score, top score, tracker
 score = {
     current: 0,
-    best: null, // DO THIS STRETCH GOAL
+    best: Number(localStorage.getItem("bestScore")) || 0, // DO THIS STRETCH GOAL
     //values for drawing mapped numbers on canvas
     x: cvs.width/2,
     y: 40,
@@ -311,8 +342,7 @@ score = {
     },
     //display the score
     render: function() {
-        if (gameState.current == gameState.play ||
-            gameState.current == gameState.gameOver) {
+        if (gameState.current !== gameState.play) return;
             //change current score number value to string value and access each place value
             let string = this.current.toString()
             let ones = string.charAt(string.length-1)
@@ -321,29 +351,35 @@ score = {
 
             //if current score has thousands place value: the game is over
             if (this.current >= 1000) {
-                gameState.current = gameState.gameOver
-            
-            //if current score has ones, tens, and hundreds place value only
-            } else if (this.current >= 100) {
-                ctx.drawImage(theme2, map[ones].imgX,map[ones].imgY,map[ones].width,map[ones].height, ( (this.x-this.w/2) + (this.w) + 3 ),this.y,this.w,this.h)
+                gameState.current = gameState.gameOver;
+                return;
+            }
+            // Hundreds, tens, ones
+            if (this.current >= 100) {
+                ctx.drawImage(theme2, map[hundreds].imgX, map[hundreds].imgY, map[hundreds].width, map[hundreds].height,
+                    (this.x - this.w/2) - this.w - 3, this.y, this.w, this.h);
 
-                ctx.drawImage(theme2, map[tens].imgX,map[tens].imgY,map[tens].width,map[tens].height, ( (this.x-this.w/2) ),this.y,this.w,this.h)
+                ctx.drawImage(theme2, map[tens].imgX, map[tens].imgY, map[tens].width, map[tens].height,
+                    (this.x - this.w/2), this.y, this.w, this.h);
 
-                ctx.drawImage(theme2, map[hundreds].imgX,map[hundreds].imgY,map[hundreds].width,map[hundreds].height, (   (this.x-this.w/2) - (this.w) - 3 ),this.y,this.w,this.h)
+                ctx.drawImage(theme2, map[ones].imgX, map[ones].imgY, map[ones].width, map[ones].height,
+                    (this.x - this.w/2) + this.w + 3, this.y, this.w, this.h);
+            }
+            // Tens, ones
+            else if (this.current >= 10) {
+                ctx.drawImage(theme2, map[tens].imgX, map[tens].imgY, map[tens].width, map[tens].height,
+                    (this.x - this.w/2) - this.w/2 - 3, this.y, this.w, this.h);
 
-            //if current score has ones and tens place value only
-            } else if (this.current >= 10) {
-                ctx.drawImage(theme2, map[ones].imgX,map[ones].imgY,map[ones].width,map[ones].height, ( (this.x-this.w/2) + (this.w/2) + 3 ),this.y,this.w,this.h)
-
-                ctx.drawImage(theme2, map[tens].imgX,map[tens].imgY,map[tens].width,map[tens].height, ( (this.x-this.w/2) - (this.w/2) - 3 ),this.y,this.w,this.h)
-            
-            //if current score has ones place value only
-            } else {
-                ctx.drawImage(theme2, map[ones].imgX,map[ones].imgY,map[ones].width,map[ones].height, ( this.x-this.w/2 ),this.y,this.w,this.h)
+                ctx.drawImage(theme2, map[ones].imgX, map[ones].imgY, map[ones].width, map[ones].height,
+                    (this.x - this.w/2) + this.w/2 + 3, this.y, this.w, this.h);
+            }
+            // Ones only
+            else {
+                ctx.drawImage(theme2, map[ones].imgX, map[ones].imgY, map[ones].width, map[ones].height,
+                    (this.x - this.w/2), this.y, this.w, this.h);
             }
         }
-    }
-}    
+    }   
 //bird : YELLOW BIRD
 bird = {
     animation: [
@@ -366,7 +402,7 @@ bird = {
     //how much the bird flies per flap()
     fly: 5.25,
     //gravity increments the velocity per frame
-    gravity: .32,
+    gravity: difficulty[currentDifficulty].gravity,
     //velocity = pixels the bird will drop in a frame
     velocity: 0,
     //object's render function that utilizes all above values to draw image onto canvas
@@ -437,14 +473,17 @@ bird = {
                 if (gameState.current == gameState.play) {
                     gameState.current = gameState.gameOver
                     SFX_FALL.play()
+                    // BEST SCORE UPDATE
+                    if (score.current > score.best) {
+                        score.best = score.current;
+                        localStorage.setItem("bestScore", score.best);
+                    }
                 }
             }
-            
             //bird cannot fly above canvas
             if (this.y-this.h/2 <= 0) {
                 this.y = this.r
             }
-
         }
     }
 }
@@ -652,11 +691,74 @@ gameOver = {
     w: 226,
     h:160,
     //object's render function that utilizes all above values to draw image onto canvas
-    render: function() {
-        //only draw this if the game state is on game over
-        if (gameState.current == gameState.gameOver) {
-            ctx.drawImage(theme1, this.imgX,this.imgY,this.width,this.height, this.x,this.y,this.w,this.h)
-            description.style.visibility = "visible"
+    render: function () {
+        if (gameState.current !== gameState.gameOver) return;
+
+        // GAME OVER PANEL
+        ctx.drawImage(
+            theme1,
+            this.imgX, this.imgY,
+            this.width, this.height,
+            this.x, this.y,
+            this.w, this.h
+        );
+
+        // ===== MEDAL POSITION (PERFECT) =====
+        let medalX = this.x + 34;
+        let medalY = this.y + 68;
+        let medalSize = 44;
+
+        let medalToDraw = null;
+
+        if (score.current >= 30) medalToDraw = medalSprites.platinum;
+        else if (score.current >= 20) medalToDraw = medalSprites.gold;
+        else if (score.current >= 10) medalToDraw = medalSprites.silver;
+        else if (score.current >= 5)  medalToDraw = medalSprites.bronze;
+
+        if (medalToDraw) {
+            ctx.drawImage(
+                theme1,
+                medalToDraw.x, medalToDraw.y,
+                medalToDraw.w, medalToDraw.h,
+                medalX, medalY,
+                medalSize, medalSize
+            );
+        }
+
+        // ===== SCORE POSITION (RIGHT COLUMN) =====
+        let curString = score.current.toString();
+        let curX = this.x + this.w - 56;  // push score left slightly
+        let curY = this.y + 78;
+
+        for (let i = curString.length - 1; i >= 0; i--) {
+            let digit = curString[i];
+            let offset = (curString.length - 1 - i) * 14;
+
+            ctx.drawImage(
+                theme2,
+                map[digit].imgX, map[digit].imgY,
+                map[digit].width, map[digit].height,
+                curX - offset, curY,
+                score.w, score.h
+            );
+        }
+
+        // ===== BEST SCORE POSITION =====
+        let bestString = score.best.toString();
+        let bestX = this.x + this.w - 56;
+        let bestY = this.y + 118;
+
+        for (let i = bestString.length - 1; i >= 0; i--) {
+            let digit = bestString[i];
+            let offset = (bestString.length - 1 - i) * 14;
+
+            ctx.drawImage(
+                theme2,
+                map[digit].imgX, map[digit].imgY,
+                map[digit].width, map[digit].height,
+                bestX - offset, bestY,
+                score.w, score.h
+            );
         }
     }
 }
@@ -665,6 +767,13 @@ gameOver = {
 ************************/
 //anything to be drawn on canvas goes in here
 let draw = () => {
+    if (gameState.current === gameState.getReady) {
+        description.style.visibility = "visible";
+    } else if (gameState.current === gameState.gameOver) {
+        description.style.visibility = "visible";
+    } else {
+        description.style.visibility = "hidden";
+    }
     //this clears canvas to default bg color
     ctx.fillStyle = '#00bbc4'
     ctx.fillRect(0,0, cvs.width,cvs.height)
@@ -686,6 +795,7 @@ let update = () => {
     ground.position()
 }
 //game looper
+setDifficulty(currentDifficulty);
 let loop = () => {
     draw()
     update()
