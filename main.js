@@ -1,16 +1,16 @@
 const medalSprites = {
-    platinum: { x: 209, y: 115, w: 44, h: 44 },
-    silver:   { x: 254, y: 115, w: 44, h: 44 },
-    gold:     { x: 299, y: 115, w: 44, h: 44 },
-    bronze:   { x: 344, y: 115, w: 44, h: 44 }
+    bronze: { x: 359, y: 158, w: 44, h: 44 },
+    silver: { x: 359, y: 112, w: 44, h: 44 },
+    gold: { x: 313, y: 112, w: 44, h: 44 },
+    platinum: { x: 313, y: 158, w: 44, h: 44 }
 };
 // =======================
 // DIFFICULTY SETTINGS
 // =======================
 const difficulty = {
-    easy:   { gap: 140, speed: 1.5, gravity: 0.25 },
-    medium: { gap: 100, speed: 2,   gravity: 0.30 },
-    hard:   { gap: 75,  speed: 3,   gravity: 0.35 }
+    easy: { gap: 140, speed: 1.5, gravity: 0.25 },
+    medium: { gap: 100, speed: 2, gravity: 0.30 },
+    hard: { gap: 75, speed: 3, gravity: 0.35 }
 };
 
 let currentDifficulty = "easy";
@@ -64,7 +64,7 @@ theme1.src = 'img/og-theme.png'
 theme2 = new Image()
 theme2.src = 'img/og-theme-2.png'
 frame = 0;
-degree = Math.PI/180
+degree = Math.PI / 180
 SFX_SCORE.src = 'audio/sfx_point.wav'
 SFX_FLAP.src = 'audio/sfx_wing.wav'
 SFX_COLLISION.src = 'audio/sfx_hit.wav'
@@ -96,24 +96,24 @@ bg = {
     h: 228,
     dx: .2,
     //object's render function that utilizes all above values to draw image onto canvas
-    render: function() {
-        ctx.drawImage(theme1, this.imgX,this.imgY,this.width,this.height, this.x,this.y,this.w,this.h)
+    render: function () {
+        ctx.drawImage(theme1, this.imgX, this.imgY, this.width, this.height, this.x, this.y, this.w, this.h)
 
         //image repeat and tile to fit canvas
-        ctx.drawImage(theme1, this.imgX,this.imgY,this.width,this.height, this.x + this.width,this.y,this.w,this.h)
+        ctx.drawImage(theme1, this.imgX, this.imgY, this.width, this.height, this.x + this.width, this.y, this.w, this.h)
 
         //image repeat again for continuous animation
-        ctx.drawImage(theme1, this.imgX,this.imgY,this.width,this.height, this.x + this.width*2,this.y,this.w,this.h)
+        ctx.drawImage(theme1, this.imgX, this.imgY, this.width, this.height, this.x + this.width * 2, this.y, this.w, this.h)
     },
 
     position: function () {
         //still img on get ready frame
         if (gameState.current == gameState.getReady) {
             this.x = 0
-        }    
+        }
         //ANIMATION: slowly move background on play game state by decrementing x
         if (gameState.current == gameState.play) {
-            this.x = (this.x-this.dx) % (this.w)
+            this.x = (this.x - this.dx) % (this.w)
         }
     }
 }
@@ -128,7 +128,7 @@ pipes = {
     //bot pipe image x,y coordinate
     bot: {
         imgX: 84,
-        imgY:323,
+        imgY: 323,
     },
     width: 26,
     height: 160,
@@ -140,34 +140,34 @@ pipes = {
     //acceptable y values must be -260 <= y <= -40
     minY: -260,
     maxY: -40,
-    
+
     pipeGenerator: [],
-    
-    reset: function() {
+
+    reset: function () {
         this.pipeGenerator = []
     },
     //object's render function that utilizes all above values to draw image onto canvas
-    render: function() {
+    render: function () {
         //draw whatever is in the pipeGenerator
         for (let i = 0; i < this.pipeGenerator.length; i++) {
             let pipe = this.pipeGenerator[i]
             let topPipe = pipe.y
             let bottomPipe = pipe.y + this.gap + this.h
 
-            ctx.drawImage(theme2, this.top.imgX,this.top.imgY,this.width,this.height, pipe.x,topPipe,this.w,this.h)
-            ctx.drawImage(theme2, this.bot.imgX,this.bot.imgY,this.width,this.height, pipe.x,bottomPipe,this.w,this.h)
+            ctx.drawImage(theme2, this.top.imgX, this.top.imgY, this.width, this.height, pipe.x, topPipe, this.w, this.h)
+            ctx.drawImage(theme2, this.bot.imgX, this.bot.imgY, this.width, this.height, pipe.x, bottomPipe, this.w, this.h)
         }
     },
-    position: function() {
+    position: function () {
         //if game is not in session, do nothing
         if (gameState.current !== gameState.play) {
             return
         }
         //if game is in session, generate set of pipes forever
         if (gameState.current == gameState.play) {
-            
+
             //when pipes reach this frame, generate another set
-            if (frame%100 == 0) {
+            if (frame % 100 == 0) {
                 this.pipeGenerator.push(
                     {
                         //spawn off canvas
@@ -175,7 +175,7 @@ pipes = {
                         x: cvs.width,
                         //random y-coordinates
                         //pipes' y value needs to vary randomly within acceptable parameters
-                        y: Math.floor((Math.random() * (this.maxY-this.minY+1)) + this.minY)
+                        y: Math.floor((Math.random() * (this.maxY - this.minY + 1)) + this.minY)
                     }
                 )
             }
@@ -197,7 +197,7 @@ pipes = {
                     },
                     bot: {
                         top: pg.y + this.h + this.gap,
-                        bottom: pg.y + this.h*2 + this.gap
+                        bottom: pg.y + this.h * 2 + this.gap
                     },
                     left: pg.x,
                     right: pg.x + this.w
@@ -205,14 +205,14 @@ pipes = {
 
                 //ANIMATION: set of pipes scroll from the right of canvas by decrementing x
                 pg.x -= this.dx
-                
+
                 //delete pipes as they scroll off the canvas (memory management)
-                if(pg.x < -this.w) {
+                if (pg.x < -this.w) {
                     this.pipeGenerator.shift()
-                        //score up
-                        score.current++
-                        SFX_SCORE.play()
-                    }
+                    //score up
+                    score.current++
+                    SFX_SCORE.play()
+                }
 
                 //PIPE COLLISION
                 //collision with top pipe
@@ -220,16 +220,26 @@ pipes = {
                     b.right > p.left &&
                     b.top < p.top.bottom &&
                     b.bottom > p.top.top) {
-                        gameState.current = gameState.gameOver
-                        SFX_COLLISION.play()
+                    gameState.current = gameState.gameOver
+                    SFX_COLLISION.play()
+                    // BEST SCORE UPDATE
+                    if (score.current > score.best) {
+                        score.best = score.current;
+                        localStorage.setItem("bestScore", score.best);
+                    }
                 }
                 //collision with bottom pipe
                 if (b.left < p.right &&
                     b.right > p.left &&
                     b.top < p.bot.bottom &&
                     b.bottom > p.bot.top) {
-                        gameState.current = gameState.gameOver
-                        SFX_COLLISION.play()
+                    gameState.current = gameState.gameOver
+                    SFX_COLLISION.play()
+                    // BEST SCORE UPDATE
+                    if (score.current > score.best) {
+                        score.best = score.current;
+                        localStorage.setItem("bestScore", score.best);
+                    }
                 }
             }
         }
@@ -244,24 +254,24 @@ ground = {
     height: 112,
     //values for drawing on canvas
     x: 0,
-    y:cvs.height - 112,
-    w:224,
-    h:112,
+    y: cvs.height - 112,
+    w: 224,
+    h: 112,
     dx: 2,
-    render: function() {
-        ctx.drawImage(theme1, this.imgX,this.imgY,this.width,this.height, this.x,this.y,this.w,this.h)
+    render: function () {
+        ctx.drawImage(theme1, this.imgX, this.imgY, this.width, this.height, this.x, this.y, this.w, this.h)
         //image repeat and tile to fit canvas
-        ctx.drawImage(theme1, this.imgX,this.imgY,this.width,this.height, this.x + this.width,this.y,this.w,this.h)
+        ctx.drawImage(theme1, this.imgX, this.imgY, this.width, this.height, this.x + this.width, this.y, this.w, this.h)
     },
     //ANIMATION:  ground scrolls to the left in a continuous loop when game state is at play
     //needs to be at the same rate of pipes' scroll speed
-    position: function() {
+    position: function () {
         if (gameState.current == gameState.getReady) {
             this.x = 0
         }
         if (gameState.current == gameState.play) {
             //modulus keeps this.x value infinitely cycling back to zero
-            this.x = (this.x-this.dx) % (this.w/2)
+            this.x = (this.x - this.dx) % (this.w / 2)
         }
     }
 }
@@ -326,67 +336,67 @@ map = [
         imgY: 184,
         width: 12,
         height: 18
-    }    
+    }
 ]
 //current score, top score, tracker
 score = {
     current: 0,
     best: Number(localStorage.getItem("bestScore")) || 0, // DO THIS STRETCH GOAL
     //values for drawing mapped numbers on canvas
-    x: cvs.width/2,
+    x: cvs.width / 2,
     y: 40,
     w: 15,
     h: 25,
-    reset: function() {
+    reset: function () {
         this.current = 0
     },
     //display the score
-    render: function() {
+    render: function () {
         if (gameState.current !== gameState.play) return;
-            //change current score number value to string value and access each place value
-            let string = this.current.toString()
-            let ones = string.charAt(string.length-1)
-            let tens = string.charAt(string.length-2)
-            let hundreds = string.charAt(string.length-3)
+        //change current score number value to string value and access each place value
+        let string = this.current.toString()
+        let ones = string.charAt(string.length - 1)
+        let tens = string.charAt(string.length - 2)
+        let hundreds = string.charAt(string.length - 3)
 
-            //if current score has thousands place value: the game is over
-            if (this.current >= 1000) {
-                gameState.current = gameState.gameOver;
-                return;
-            }
-            // Hundreds, tens, ones
-            if (this.current >= 100) {
-                ctx.drawImage(theme2, map[hundreds].imgX, map[hundreds].imgY, map[hundreds].width, map[hundreds].height,
-                    (this.x - this.w/2) - this.w - 3, this.y, this.w, this.h);
-
-                ctx.drawImage(theme2, map[tens].imgX, map[tens].imgY, map[tens].width, map[tens].height,
-                    (this.x - this.w/2), this.y, this.w, this.h);
-
-                ctx.drawImage(theme2, map[ones].imgX, map[ones].imgY, map[ones].width, map[ones].height,
-                    (this.x - this.w/2) + this.w + 3, this.y, this.w, this.h);
-            }
-            // Tens, ones
-            else if (this.current >= 10) {
-                ctx.drawImage(theme2, map[tens].imgX, map[tens].imgY, map[tens].width, map[tens].height,
-                    (this.x - this.w/2) - this.w/2 - 3, this.y, this.w, this.h);
-
-                ctx.drawImage(theme2, map[ones].imgX, map[ones].imgY, map[ones].width, map[ones].height,
-                    (this.x - this.w/2) + this.w/2 + 3, this.y, this.w, this.h);
-            }
-            // Ones only
-            else {
-                ctx.drawImage(theme2, map[ones].imgX, map[ones].imgY, map[ones].width, map[ones].height,
-                    (this.x - this.w/2), this.y, this.w, this.h);
-            }
+        //if current score has thousands place value: the game is over
+        if (this.current >= 1000) {
+            gameState.current = gameState.gameOver;
+            return;
         }
-    }   
+        // Hundreds, tens, ones
+        if (this.current >= 100) {
+            ctx.drawImage(theme2, map[hundreds].imgX, map[hundreds].imgY, map[hundreds].width, map[hundreds].height,
+                (this.x - this.w / 2) - this.w - 3, this.y, this.w, this.h);
+
+            ctx.drawImage(theme2, map[tens].imgX, map[tens].imgY, map[tens].width, map[tens].height,
+                (this.x - this.w / 2), this.y, this.w, this.h);
+
+            ctx.drawImage(theme2, map[ones].imgX, map[ones].imgY, map[ones].width, map[ones].height,
+                (this.x - this.w / 2) + this.w + 3, this.y, this.w, this.h);
+        }
+        // Tens, ones
+        else if (this.current >= 10) {
+            ctx.drawImage(theme2, map[tens].imgX, map[tens].imgY, map[tens].width, map[tens].height,
+                (this.x - this.w / 2) - this.w / 2 - 3, this.y, this.w, this.h);
+
+            ctx.drawImage(theme2, map[ones].imgX, map[ones].imgY, map[ones].width, map[ones].height,
+                (this.x - this.w / 2) + this.w / 2 + 3, this.y, this.w, this.h);
+        }
+        // Ones only
+        else {
+            ctx.drawImage(theme2, map[ones].imgX, map[ones].imgY, map[ones].width, map[ones].height,
+                (this.x - this.w / 2), this.y, this.w, this.h);
+        }
+    }
+}
 //bird : YELLOW BIRD
 bird = {
     animation: [
-        {imgX: 276, imgY: 114},  //  position 0
-        {imgX: 276, imgY: 140},  //  position 1
-        {imgX: 276, imgY: 166},  //  position 2
-        {imgX: 276, imgY: 140}   //  position 1
+        { imgX: 276, imgY: 114 },  //  position 0
+        { imgX: 276, imgY: 140 },  //  position 1
+        { imgX: 276, imgY: 166 },  //  position 2
+        { imgX: 276, imgY: 140 }   //  position 1
     ],
     fr: 0,
     //object's key-value properties pinpointing its location
@@ -406,7 +416,7 @@ bird = {
     //velocity = pixels the bird will drop in a frame
     velocity: 0,
     //object's render function that utilizes all above values to draw image onto canvas
-    render: function() {
+    render: function () {
         let bird = this.animation[this.fr]
         //save all previous setting
         ctx.save()
@@ -414,22 +424,22 @@ bird = {
         ctx.translate(this.x, this.y)
         //rotate bird by degree
         ctx.rotate(this.rotation)
-        ctx.drawImage(theme1, bird.imgX,bird.imgY,this.width,this.height, -this.w/2,-this.h/2,this.w,this.h)
+        ctx.drawImage(theme1, bird.imgX, bird.imgY, this.width, this.height, -this.w / 2, -this.h / 2, this.w, this.h)
         ctx.restore()
         //bird is centered on x,y position
         // ctx.drawImage(theme1, bird.imgX,bird.imgY,this.width,this.height, this.x-this.w/2,this.y-this.h/2,this.w,this.h)
     },
     //bird flies
-    flap: function() {
+    flap: function () {
         this.velocity = - this.fly
     },
     //function checks gameState and updates bird's position
-    position: function() {
+    position: function () {
         if (gameState.current == gameState.getReady) {
             this.y = 160
             this.rotation = 0 * degree
             //bird animation changes every 20 frames
-            if (frame%20 == 0) {
+            if (frame % 20 == 0) {
                 this.fr += 1
             }
             //when bird animation reaches its last value, reset animation
@@ -439,7 +449,7 @@ bird = {
 
         } else {
             //bird animation changes every 4 frames
-            if (frame%4 == 0) {
+            if (frame % 4 == 0) {
                 this.fr += 1
             }
             //when bird animation reaches its last value, reset animation
@@ -454,7 +464,7 @@ bird = {
             //bird rotation
             if (this.velocity <= this.fly) {
                 this.rotation = -15 * degree
-            } else if (this.velocity >= this.fly+2) {
+            } else if (this.velocity >= this.fly + 2) {
                 this.rotation = 70 * degree
                 this.fr = 1
             } else {
@@ -462,10 +472,10 @@ bird = {
             }
 
             //check collision with ground
-            if (this.y+this.h/2 >= cvs.height-ground.h) {
-                this.y = cvs.height-ground.h - this.h/2
+            if (this.y + this.h / 2 >= cvs.height - ground.h) {
+                this.y = cvs.height - ground.h - this.h / 2
                 //stop flapping when it hits the ground
-                if (frame%1 == 0) {
+                if (frame % 1 == 0) {
                     this.fr = 2
                     this.rotation = 70 * degree
                 }
@@ -481,7 +491,7 @@ bird = {
                 }
             }
             //bird cannot fly above canvas
-            if (this.y-this.h/2 <= 0) {
+            if (this.y - this.h / 2 <= 0) {
                 this.y = this.r
             }
         }
@@ -491,10 +501,10 @@ bird = {
 bird1 = {
     //ANIMATION: bird  //DO THIS STRETCH GOAL
     animation: [
-        {imgX: 115, imgY: 381},  //  position 0
-        {imgX: 115, imgY: 407},  //  position 1
-        {imgX: 115, imgY: 433},  //  position 2
-        {imgX: 115, imgY: 407}   //  position 1
+        { imgX: 115, imgY: 381 },  //  position 0
+        { imgX: 115, imgY: 407 },  //  position 1
+        { imgX: 115, imgY: 433 },  //  position 2
+        { imgX: 115, imgY: 407 }   //  position 1
     ],
     fr: 0,
     //object's key-value properties pinpointing its location
@@ -514,21 +524,21 @@ bird1 = {
     //velocity = pixels the bird will drop in a frame
     velocity: 0,
     //object's render function that utilizes all above values to draw image onto canvas
-    render: function() {
+    render: function () {
         let bird = this.animation[this.fr]
         //bird is centered on x,y position
-        ctx.drawImage(theme2, bird.imgX,bird.imgY,this.width,this.height, this.x-this.w/2,this.y-this.h/2,this.w,this.h)
+        ctx.drawImage(theme2, bird.imgX, bird.imgY, this.width, this.height, this.x - this.w / 2, this.y - this.h / 2, this.w, this.h)
     },
     //bird flies
-    flap: function() {
+    flap: function () {
         this.velocity = - this.fly
     },
     //function checks gameState and updates bird's position
-    position: function() {
+    position: function () {
         if (gameState.current == gameState.getReady) {
             this.y = 160
             //bird animation changes every 20 frames
-            if (frame%20 == 0) {
+            if (frame % 20 == 0) {
                 this.fr += 1
             }
             //when bird animation reaches its last value, reset animation
@@ -538,7 +548,7 @@ bird1 = {
 
         } else {
             //bird animation changes every 4 frames
-            if (frame%4 == 0) {
+            if (frame % 4 == 0) {
                 this.fr += 1
             }
             //when bird animation reaches its last value, reset animation
@@ -551,10 +561,10 @@ bird1 = {
             this.y += this.velocity
 
             //check collision with ground
-            if (this.y+this.h/2 >= cvs.height-ground.h) {
-                this.y = cvs.height-ground.h - this.h/2
+            if (this.y + this.h / 2 >= cvs.height - ground.h) {
+                this.y = cvs.height - ground.h - this.h / 2
                 //stop flapping when it hits the ground
-                if (frame%1 == 0) {
+                if (frame % 1 == 0) {
                     this.fr = 2
                 }
                 //then the game is over
@@ -563,9 +573,9 @@ bird1 = {
                     SFX_FALL.play()
                 }
             }
-            
+
             //bird cannot fly above canvas
-            if (this.y-this.h/2 <= 0) {
+            if (this.y - this.h / 2 <= 0) {
                 this.y = this.r
             }
         }
@@ -575,10 +585,10 @@ bird1 = {
 bird2 = {
     //ANIMATION: bird  //DO THIS STRETCH GOAL
     animation: [
-        {imgX: 87, imgY: 491},   //  position 0
-        {imgX: 115, imgY: 329},  //  position 1
-        {imgX: 115, imgY: 355},  //  position 2
-        {imgX: 115, imgY: 329}   //  position 1
+        { imgX: 87, imgY: 491 },   //  position 0
+        { imgX: 115, imgY: 329 },  //  position 1
+        { imgX: 115, imgY: 355 },  //  position 2
+        { imgX: 115, imgY: 329 }   //  position 1
     ],
     fr: 0,
     //object's key-value properties pinpointing its location
@@ -601,21 +611,21 @@ bird2 = {
     //velocity = pixels the bird will drop in a frame
     velocity: 0,
     //object's render function that utilizes all above values to draw image onto canvas
-    render: function() {
+    render: function () {
         let bird = this.animation[this.fr]
         //bird is centered on x,y position
-        ctx.drawImage(theme2, bird.imgX,bird.imgY,this.width,this.height, this.x-this.w/2,this.y-this.h/2,this.w,this.h)
+        ctx.drawImage(theme2, bird.imgX, bird.imgY, this.width, this.height, this.x - this.w / 2, this.y - this.h / 2, this.w, this.h)
     },
     //bird flies
-    flap: function() {
+    flap: function () {
         this.velocity = - this.fly
     },
     //function checks gameState and updates bird's position
-    position: function() {
+    position: function () {
         if (gameState.current == gameState.getReady) {
             this.y = 160
             //bird animation changes every 20 frames
-            if (frame%20 == 0) {
+            if (frame % 20 == 0) {
                 this.fr += 1
             }
             //when bird animation reaches its last value, reset animation
@@ -625,7 +635,7 @@ bird2 = {
 
         } else {
             //bird animation changes every 4 frames
-            if (frame%4 == 0) {
+            if (frame % 4 == 0) {
                 this.fr += 1
             }
             //when bird animation reaches its last value, reset animation
@@ -638,10 +648,10 @@ bird2 = {
             this.y += this.velocity
 
             //check collision with ground
-            if (this.y+this.h/2 >= cvs.height-ground.h) {
-                this.y = cvs.height-ground.h - this.h/2
+            if (this.y + this.h / 2 >= cvs.height - ground.h) {
+                this.y = cvs.height - ground.h - this.h / 2
                 //stop flapping when it hits the ground
-                if (frame%1 == 0) {
+                if (frame % 1 == 0) {
                     this.fr = 2
                 }
                 //then the game is over
@@ -650,9 +660,9 @@ bird2 = {
                     SFX_FALL.play()
                 }
             }
-            
+
             //bird cannot fly above canvas
-            if (this.y-this.h/2 <= 0) {
+            if (this.y - this.h / 2 <= 0) {
                 this.y = this.r
             }
         }
@@ -666,15 +676,15 @@ getReady = {
     width: 174,
     height: 160,
     //values for drawing on canvas
-    x: cvs.width/2 - 174/2,
-    y: cvs.height/2 - 160,
+    x: cvs.width / 2 - 174 / 2,
+    y: cvs.height / 2 - 160,
     w: 174,
     h: 160,
     //object's render function that utilizes all above values to draw image onto canvas
-    render: function() {
+    render: function () {
         //only draw this if the game state is on get ready
-        if (gameState.current == gameState.getReady) {    
-            ctx.drawImage(theme1, this.imgX,this.imgY,this.width,this.height, this.x,this.y,this.w,this.h)
+        if (gameState.current == gameState.getReady) {
+            ctx.drawImage(theme1, this.imgX, this.imgY, this.width, this.height, this.x, this.y, this.w, this.h)
         }
     }
 }
@@ -686,10 +696,10 @@ gameOver = {
     width: 226,
     height: 158,
     //values for drawing on canvas
-    x: cvs.width/2 - 226/2,
-    y: cvs.height/2 - 160,
+    x: cvs.width / 2 - 226 / 2,
+    y: cvs.height / 2 - 160,
     w: 226,
-    h:160,
+    h: 160,
     //object's render function that utilizes all above values to draw image onto canvas
     render: function () {
         if (gameState.current !== gameState.gameOver) return;
@@ -703,9 +713,9 @@ gameOver = {
             this.w, this.h
         );
 
-        // ===== MEDAL POSITION (PERFECT) =====
-        let medalX = this.x + 34;
-        let medalY = this.y + 68;
+        // ===== MEDAL POSITION =====
+        let medalX = this.x + 25;
+        let medalY = this.y + 87;
         let medalSize = 44;
 
         let medalToDraw = null;
@@ -713,7 +723,7 @@ gameOver = {
         if (score.current >= 30) medalToDraw = medalSprites.platinum;
         else if (score.current >= 20) medalToDraw = medalSprites.gold;
         else if (score.current >= 10) medalToDraw = medalSprites.silver;
-        else if (score.current >= 5)  medalToDraw = medalSprites.bronze;
+        else if (score.current >= 5) medalToDraw = medalSprites.bronze;
 
         if (medalToDraw) {
             ctx.drawImage(
@@ -727,7 +737,7 @@ gameOver = {
 
         // ===== SCORE POSITION (RIGHT COLUMN) =====
         let curString = score.current.toString();
-        let curX = this.x + this.w - 56;  // push score left slightly
+        let curX = this.x + this.w - 45;
         let curY = this.y + 78;
 
         for (let i = curString.length - 1; i >= 0; i--) {
@@ -745,7 +755,7 @@ gameOver = {
 
         // ===== BEST SCORE POSITION =====
         let bestString = score.best.toString();
-        let bestX = this.x + this.w - 56;
+        let bestX = this.x + this.w - 42;
         let bestY = this.y + 118;
 
         for (let i = bestString.length - 1; i >= 0; i--) {
@@ -776,7 +786,7 @@ let draw = () => {
     }
     //this clears canvas to default bg color
     ctx.fillStyle = '#00bbc4'
-    ctx.fillRect(0,0, cvs.width,cvs.height)
+    ctx.fillRect(0, 0, cvs.width, cvs.height)
     //things to draw
     bg.render()
     pipes.render()
